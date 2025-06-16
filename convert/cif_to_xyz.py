@@ -1,12 +1,12 @@
 def convert_cif_to_xyz(cif_path, xyz_path, bonds_path=None):
     """
-    Converts a PDB-style CIF file to XYZ format compatible with OVITO.
+    Converts a PDB-style CIF file to XYZ format.
     Optionally writes a bonds file connecting atom 0 to all others.
 
     Parameters:
         cif_path (str): Path to the input CIF file.
         xyz_path (str): Path to save the output XYZ file.
-        bonds_path (str, optional): Path to save bonds file (OVITO format).
+        bonds_path (str, optional): Path to save bonds file.
     """
     with open(cif_path, "r") as f:
         lines = f.readlines()
@@ -22,7 +22,7 @@ def convert_cif_to_xyz(cif_path, xyz_path, bonds_path=None):
 
     with open(xyz_path, "w") as out:
         out.write(f"{len(atoms)}\n")
-        out.write("Converted from CIF to XYZ for OVITO\n")
+        out.write("Converted from CIF to XYZ\n")
         for atom, x, y, z in atoms:
             out.write(f"{atom} {x} {y} {z}\n")
 

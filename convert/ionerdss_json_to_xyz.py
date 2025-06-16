@@ -7,7 +7,7 @@ def ionerdss_json_to_xyz(json_path, xyz_path, bonds_path=None):
     Converts an ioNERDSS-style JSON file to XYZ format with:
       - Center of mass at (0, 0, 0)
       - Interface atoms at their given coordinates
-      - Optionally writes OVITO-compatible bonds file
+      - Optionally writes bonds file
     """
     with open(json_path, "r") as f:
         data = json.load(f)
