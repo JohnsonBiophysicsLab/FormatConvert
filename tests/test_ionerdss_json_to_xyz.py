@@ -27,21 +27,29 @@ class TestIonerdssJsonToXYZ(unittest.TestCase):
             json.dump(sample_data, f)
 
     def test_conversion(self):
-        ionerdss_json_to_xyz(self.json_path, self.xyz_path)
+        bonds_path = "tests/fixtures/sample_output.bonds"
+        ionerdss_json_to_xyz(self.json_path, self.xyz_path, bonds_path)
 
         self.assertTrue(os.path.exists(self.xyz_path))
+        self.assertTrue(os.path.exists(bonds_path))
 
         with open(self.xyz_path, "r") as f:
             lines = f.readlines()
 
-        # Check header
         self.assertEqual(int(lines[0].strip()), 3)
-        self.assertTrue("Converted from ioNERDSS" in lines[1])
+        self.assertIn("A1 1.000 2.000 3.000", lines[3])
 
-        # Check contents
-        self.assertEqual(lines[2].strip(), "A 0.000 0.000 0.000")
-        self.assertEqual(lines[3].strip(), "A1 1.000 2.000 3.000")
-        self.assertEqual(lines[4].strip(), "A2 4.000 5.000 6.000")
+        with open(bonds_path, "r") as f:
+            bond_lines = f.readlines()
+
+        self.assertEqual(len(bond_lines), 2)  # 2 interfaces
+        self.assertEqual(bond_lines[0].strip(), "0 1")
+        self.assertEqual(bond_lines[1].strip(), "0 2")
+
+        # Cleanup
+        if os.path.exists(bonds_path):
+            os.remove(bonds_path)
+
 
     def tearDown(self):
         if os.path.exists(self.json_path):
