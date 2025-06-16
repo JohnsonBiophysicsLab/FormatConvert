@@ -8,6 +8,6 @@ Utility script for converting between file formats in NERDSS and ioNERDSS
 
 Run unit test with:
 
-bash```
+```bash
 python -m unittest discover -s tests
 ```
