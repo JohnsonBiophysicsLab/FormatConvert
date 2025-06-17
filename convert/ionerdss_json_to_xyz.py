@@ -1,7 +1,5 @@
 import json
 
-import json
-
 def ionerdss_json_to_xyz(json_path, xyz_path, bonds_path=None):
     """
     Converts an ioNERDSS-style JSON file to XYZ format with:
