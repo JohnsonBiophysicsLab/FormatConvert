@@ -1,16 +1,16 @@
 # convert/cif_to_pdb.py
 
-def convert_cif_to_pdb(cif_path, pdb_path):
+def cif_to_pdb(cif_path, pdb_path):
     """
     Converts a coarse-grained CIF file (PDB-style) to a PDB file.
     """
+    atoms = []
+    bonds = []
+
     with open(cif_path, "r") as f:
-        lines = f.readlines()
-
-    atom_lines = [line for line in lines if line.startswith("ATOM")]
-
-    with open(pdb_path, "w") as out:
-        for line in atom_lines:
+        for line in f:
+            if not line.startswith("ATOM"):
+                continue
             parts = line.split()
             if len(parts) < 11:
                 continue
@@ -19,17 +19,51 @@ def convert_cif_to_pdb(cif_path, pdb_path):
             atom_name = parts[2]
             res_name = parts[3]
             chain_id = parts[4]
-            x = float(parts[5])
-            y = float(parts[6])
-            z = float(parts[7])
+            x, y, z = map(float, parts[5:8])
             occupancy = float(parts[8])
             bfactor = float(parts[9])
             element = parts[10]
 
+            atoms.append({
+                "serial": serial,
+                "name": atom_name,
+                "res_name": res_name,
+                "chain_id": chain_id,
+                "x": x, "y": y, "z": z,
+                "occupancy": occupancy,
+                "bfactor": bfactor,
+                "element": element
+            })
+
+    # Build a mapping from (res_name, chain_id) to COM and INTs
+    from collections import defaultdict
+    groups = defaultdict(lambda: {"COM": None, "INTs": []})
+
+    for atom in atoms:
+        key = (atom["res_name"], atom["chain_id"])
+        if atom["name"] == "COM":
+            groups[key]["COM"] = atom["serial"]
+        elif atom["name"] == "INT":
+            groups[key]["INTs"].append(atom["serial"])
+
+    # Build CONECT records: COM — INT
+    for group in groups.values():
+        com = group["COM"]
+        for int_serial in group["INTs"]:
+            if com is not None:
+                bonds.append((com, int_serial))
+
+    with open(pdb_path, "w") as out:
+        # Write ATOM lines
+        for atom in atoms:
             out.write(
-                f"ATOM  {serial:5d} {atom_name:^4} {res_name:>3} {chain_id:1}   "
-                f"1    {x:8.3f}{y:8.3f}{z:8.3f}{occupancy:6.2f}{bfactor:6.2f}          {element:>2}\n"
+                f"ATOM  {atom['serial']:5d} {atom['name']:^4} {atom['res_name']:>3} {atom['chain_id']:1}   "
+                f"1    {atom['x']:8.3f}{atom['y']:8.3f}{atom['z']:8.3f}{atom['occupancy']:6.2f}{atom['bfactor']:6.2f}          {atom['element']:>2}\n"
             )
+
+        # Write CONECT lines
+        for com, int_atom in bonds:
+            out.write(f"CONECT{com:5d}{int_atom:5d}\n")
 
 
 # -------------------------------------
@@ -44,5 +78,5 @@ if __name__ == "__main__":
     input_file = sys.argv[1]
     output_file = sys.argv[2]
 
-    convert_cif_to_pdb(input_file, output_file)
+    cif_to_pdb(input_file, output_file)
     print(f"Converted {input_file} → {output_file}")

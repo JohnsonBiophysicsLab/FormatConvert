@@ -2,7 +2,7 @@
 
 import unittest
 import os
-from convert.cif_to_xyz import convert_cif_to_xyz
+from convert.cif_to_xyz import cif_to_xyz
 
 class TestCIFtoXYZ(unittest.TestCase):
 
@@ -19,7 +19,7 @@ ATOM      2  INT  MOL A   113.590  120.603  125.681  1.00  0.00  O
 """)
 
     def test_conversion(self):
-        convert_cif_to_xyz(self.test_cif, self.test_xyz)
+        cif_to_xyz(self.test_cif, self.test_xyz)
         with open(self.test_xyz, "r") as f:
             lines = f.readlines()
 
@@ -31,7 +31,7 @@ ATOM      2  INT  MOL A   113.590  120.603  125.681  1.00  0.00  O
         input_cif = "tests/fixtures/5l93_coarse_grained.cif"
         output_xyz = "tests/output_5l93_model.xyz"
 
-        convert_cif_to_xyz(input_cif, output_xyz)
+        cif_to_xyz(input_cif, output_xyz)
 
         # Verify file was written
         self.assertTrue(os.path.exists(output_xyz))
