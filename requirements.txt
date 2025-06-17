@@ -1,0 +1,2 @@
+# requirements.txt
+unittest; python_version >= "3.7"
